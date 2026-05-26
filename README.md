@@ -16,7 +16,7 @@ Main outcomes:
 
 1. Creates a new Azure subscription.
 2. Applies naming conventions.
-3. For network enabled subscriptions, reserves IP space in an external IPAM solution and provisions core network resources
+3. For network-enabled subscriptions, reserves IP space in an external IPAM solution and provisions core network resources.
 4. Moves the subscription to a target management group.
 5. Creates Entra ID groups and optional PIM group/policies for production.
 6. Sends a notification email with generated RBAC snippet.
@@ -289,47 +289,82 @@ In Cost Management + Billing, the managed identity has Azure Subscription Creato
 
 ### Permissions for Entra ID groups and PIM policies
 
-To create Entra ID groups with PIM policies, assign an owner, and send email, the permissions below were configured (these can only be added through the Azure CLI).
+To create Entra ID groups with PIM policies, assign an owner, and send email, the permissions below were configured (these examples use Microsoft Graph PowerShell cmdlets).
+
+Before running the commands below, connect to Microsoft Graph with sufficient permissions.
+
+```powershell
+Connect-MgGraph -Scopes "Application.ReadWrite.All","AppRoleAssignment.ReadWrite.All"
+```
+
+The commands are intentionally split into separate code blocks for readability.
 
 ```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'User.Read.All'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'User.Read.All'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
+```
+
+```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'Group.ReadWrite.All'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'Group.ReadWrite.All'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
+```
+
+```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'User.ReadWrite.All'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'User.ReadWrite.All'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
+```
+
+```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'PrivilegedAssignmentSchedule.ReadWrite.AzureADGroup'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'PrivilegedAssignmentSchedule.ReadWrite.AzureADGroup'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
+```
+
+```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'Domain.Read.All'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'Domain.Read.All'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
+```
+
+```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'RoleManagementPolicy.ReadWrite.AzureADGroup'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'RoleManagementPolicy.ReadWrite.AzureADGroup'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
+```
+
+```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'PrivilegedEligibilitySchedule.ReadWrite.AzureADGroup'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'PrivilegedEligibilitySchedule.ReadWrite.AzureADGroup'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
+```
+
+```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'PrivilegedAccess.ReadWrite.AzureADGroup'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'PrivilegedAccess.ReadWrite.AzureADGroup'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
+```
+
+```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'PrivilegedEligibilitySchedule.Remove.AzureADGroup'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'PrivilegedEligibilitySchedule.Remove.AzureADGroup'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
+```
+
+```powershell
 $ServicePrincipalId = '57435c97-9d36-4b1c-8d70-e0b87ad27e42'
-$GraphResource = Get-AzureADServicePrincipal -Filter "AppId eq '00000003-0000-0000-c000-000000000000'"
-$Permission = $GraphResource.AppRoles | Where-Object {$_.value -eq 'Mail.Send'}
-New-AzureADServiceAppRoleAssignment -ObjectId $ServicePrincipalId -PrincipalId $ServicePrincipalId -Id $Permission.Id -ResourceId $GraphResource.ObjectId
+$GraphResource = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
+$Permission = $GraphResource.AppRoles | Where-Object {$_.Value -eq 'Mail.Send'}
+New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $ServicePrincipalId -PrincipalId $ServicePrincipalId -AppRoleId $Permission.Id -ResourceId $GraphResource.Id
 ```
